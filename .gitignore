@@ -1,0 +1,23 @@
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Build output
+bin/
+build/
+
+# Dist output (optional)
+dist/*.exe
+dist/jre/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
