@@ -74,18 +74,20 @@ java -jar dist/Calculator.jar
 
 ## 📁 フォルダ構成
 
+```
 JavaCalculator/
-├─ src/                 # ソースコード
-├─ images/              # スクリーンショット
-├─ dist/                # 配布物（jar / exe / jre 同梱版）
-│   ├─ Calculator.jar
-│   ├─ Calculator_free.exe
-│   ├─ jre/             # Java 不要で動く同梱 JRE
-│   └─ Use_this_if_you_have_jre/
-│       └─ Calculator.exe
+├─ src/                # ソースコード
+├─ images/             # スクリーンショット
+├─ dist/               # 配布物 (jar / exe / jre 同梱版)
+│  ├─ Calculator.jar
+│  ├─ Calculator_free.exe
+│  ├─ jre/             # Java 不要で動く同梱 JRE
+│  │  └─ Use_this_if_you_have_jre/
+│  │     └─ Calculator.exe
 ├─ .gitignore
 ├─ .gitattributes
 └─ README.md
+```
 
 
 ---
