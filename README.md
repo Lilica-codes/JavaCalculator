@@ -95,7 +95,8 @@ java -jar dist/Calculator.jar
 
 ## 📁 フォルダ構成
 
-'''
+```
+
 JavaCalculator/
 ├─ src/                     ソースコード
 ├─ images/　　　　　　　　 スクリーンショット
@@ -106,6 +107,7 @@ JavaCalculator/
 ├─ .gitignore
 └─ README.md
 
+```
 
 ---
 
