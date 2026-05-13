@@ -1,8 +1,10 @@
-package calculatorGUI;
+package calculatorGUI.math;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.Supplier;
+
+import calculatorGUI.state.AngleMode;
 
 
 public class AngleMath extends BasicMath {
@@ -31,11 +33,11 @@ public class AngleMath extends BasicMath {
     private double toRadiansIfNeeded(BigDecimal v) {
         switch (angleModeSupplier.get()) {
         case DEG:
-            return v.multiply(CalculatorGUI.PI, MC)
+            return v.multiply(MathConstants.PI, MC)
             		.divide(new BigDecimal("180"), MC)
             		.doubleValue();
         case GRAD:
-            return v.multiply(CalculatorGUI.PI, MC)
+            return v.multiply(MathConstants.PI, MC)
             		.divide(new BigDecimal("200"), MC)
             		.doubleValue();
         default:
@@ -56,11 +58,11 @@ public class AngleMath extends BasicMath {
     	switch (angleModeSupplier.get()) {
     	case DEG:
             return v.multiply(new BigDecimal("180"))
-            		.divide(CalculatorGUI.PI, MC);
+            		.divide(MathConstants.PI, MC);
             
         case GRAD:
             return v.multiply(new BigDecimal("200"))
-            		.divide(CalculatorGUI.PI, MC);
+            		.divide(MathConstants.PI, MC);
         default:
             return v;
     	}
@@ -88,14 +90,14 @@ public class AngleMath extends BasicMath {
 
     
     //テイラー展開を利用したsin(x), cos(x)の定義
-    BigDecimal sin(BigDecimal x) {
+    public BigDecimal sin(BigDecimal x) {
         //if (displayField.getText().isEmpty()) return BigDecimal.ONE;
         double rad = toRadiansIfNeeded(x);
         double res = Math.sin(rad);
         return new BigDecimal(res, MC); // BigDecimal に戻す
     }
     
-    BigDecimal cos(BigDecimal x) {
+    public BigDecimal cos(BigDecimal x) {
         //if (displayField.getText().isEmpty()) return BigDecimal.ONE;
         double rad = toRadiansIfNeeded(x);
         double res = Math.cos(rad);
@@ -104,7 +106,7 @@ public class AngleMath extends BasicMath {
     }
     
     //tan(x)は sin(x) / cos(x)でOK
-    BigDecimal tan(BigDecimal x) {
+    public BigDecimal tan(BigDecimal x) {
         double xrad = toRadiansIfNeeded(x); // DEG → RAD 変換
         double xcos = Math.cos(xrad);
 
@@ -117,7 +119,7 @@ public class AngleMath extends BasicMath {
     }
     
     //逆三角関数
-    BigDecimal arcsin(BigDecimal x) {
+    public BigDecimal arcsin(BigDecimal x) {
     	double v = x.doubleValue();
     	
     	if (v < -1.0 || v > 1.0) {
@@ -129,7 +131,7 @@ public class AngleMath extends BasicMath {
 
     }
     
-    BigDecimal arccos(BigDecimal x) {
+    public BigDecimal arccos(BigDecimal x) {
     	double v = x.doubleValue();
     	
     	if (v < -1.0 || v > 1.0) {
@@ -140,7 +142,7 @@ public class AngleMath extends BasicMath {
 
     }
     
-    BigDecimal arctan(BigDecimal x) {
+    public BigDecimal arctan(BigDecimal x) {
     	double v = x.doubleValue();
     	double rad = Math.atan(v);
     	return fromRadiansIfNeeded(rad);

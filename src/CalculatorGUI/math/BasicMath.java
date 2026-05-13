@@ -1,8 +1,10 @@
-package calculatorGUI;
+package calculatorGUI.math;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.Supplier;
+
+import calculatorGUI.state.AngleMode;
 
 public class BasicMath {
     // private static final double TAN_COS_EPS = 1e-12;
@@ -16,7 +18,7 @@ public class BasicMath {
         this.angleModeSupplier = angleModeSupplier;
     }
     
-    BigDecimal exp(BigDecimal x) {
+    public BigDecimal exp(BigDecimal x) {
     	double d = Math.exp(x.doubleValue());
         return BigDecimal.valueOf(d);
     }
@@ -56,7 +58,7 @@ public class BasicMath {
 
 
     
-    BigDecimal ln(BigDecimal value) {
+    public BigDecimal ln(BigDecimal value) {
     	double v = value.doubleValue();
 
         // 定義域チェック：ln(x) は x > 0 のときのみ定義
@@ -70,7 +72,7 @@ public class BasicMath {
 
     }
     
-    BigDecimal log10(BigDecimal value) {
+    public BigDecimal log10(BigDecimal value) {
     	double v = value.doubleValue();
 
         if (v <= 0.0) {
@@ -81,9 +83,18 @@ public class BasicMath {
 
     }
     
-    BigDecimal _10_x(BigDecimal v) {
-    	double d = Math.pow(10, v.doubleValue());
-        return BigDecimal.valueOf(d);
+    public BigDecimal _10_x(BigDecimal v) {
+        return BigDecimal.valueOf(Math.pow(10, v.doubleValue()));
+
+    }
+
+    public BigDecimal ceil(BigDecimal v) {
+        return BigDecimal.valueOf(Math.ceil(v.doubleValue()));
+
+    }
+    
+    public BigDecimal floor(BigDecimal v) {
+        return BigDecimal.valueOf(Math.floor(v.doubleValue()));
 
     }
     

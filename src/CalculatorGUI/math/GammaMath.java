@@ -1,8 +1,10 @@
-package calculatorGUI;
+package calculatorGUI.math;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.Supplier;
+
+import calculatorGUI.state.AngleMode;
 
 public class GammaMath extends BasicMath{
 

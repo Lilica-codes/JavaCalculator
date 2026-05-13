@@ -48,6 +48,7 @@ GUI は Swing をベースに、直感的で使いやすいレイアウトを実
 - sin / cos / tan
 - log / ln
 - EXP 入力
+- 天井関数・床関数
 - 小数対応 mod（BigDecimal.remainder）
 
 ### 🔧 入力制御（状態遷移）
@@ -93,19 +94,27 @@ java -jar dist/Calculator.jar
 
 ---
 
-## 📁 フォルダ構成
+## 📁 フォルダ構成（Updated）
 
 ```
 
 JavaCalculator/
-├─ src/                     ソースコード
-├─ images/　　　　　　　　 スクリーンショット
-├─ dist/                    配布物（jar / exe / jre 同梱版）
-│    ├─ Calculator.jar
-│    ├─ Calculator_free.exe
-│    └─ jre/               （Java 不要で動くための同梱 JRE）
-├─ .gitignore
-└─ README.md
+ ├─ src/
+ │   ├─ calculator/
+ │   │   ├─ ui/
+ │   │   ├─ controller/
+ │   │   ├─ state/
+ │   │   └─ math/
+ │   └─ Main.java
+ ├─ images/
+ ├─ dist/
+ │   ├─ Calculator.jar
+ │   ├─ Calculator_free.exe
+ │   ├─ jre/
+ │   └─ Use_this_if_you_have_jre/
+ ├─ .gitignore
+ ├─ .gitattributes
+ └─ README.md
 
 ```
 
@@ -134,6 +143,12 @@ JavaCalculator/
 ---
 
 ## 🔧 更新履歴
+###  2026-05-14
+・天井関数・床関数の実装
+・電卓ボタンの表記改善
+・フォルダ構成を整理し、MVC 構造が明確になるように `ui/`, `controller/`, `state/`, `math/` を分離
+・プロジェクトの可読性と拡張性を向上
+
 ###  2026-05-13
 ・機能の切り替え方法を見直し、長押し形式からシフトボタン形式へ変更
 ・階乗計算（ガンマ関数使用の小数点にも対応した形式）、絶対値の実装
