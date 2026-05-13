@@ -1,93 +1,23 @@
-package CalculatorGUI;
+package calculatorGUI;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.Supplier;
 
 
-public class AngleMath {
+public class AngleMath extends BasicMath {
     private static final double TAN_COS_EPS = 1e-12;
 
 
-    private final MathContext MC;
-    private final Supplier<AngleMode> angleModeSupplier;
+    //protected final MathContext MC;
+    //protected final Supplier<AngleMode> angleModeSupplier;
 
     public AngleMath(MathContext mc, Supplier<AngleMode> angleModeSupplier) {
-        this.MC = mc;
-        this.angleModeSupplier = angleModeSupplier;
+    	super(mc, angleModeSupplier);
     }
     
 
-    BigDecimal exp(BigDecimal x) {
-    	double d = Math.exp(x.doubleValue());
-        return BigDecimal.valueOf(d);
-    }
-
-	/*
-     // BigDecimal におけるe^xの定義
-        BigDecimal exp(BigDecimal x) {
-        BigDecimal sum = BigDecimal.ONE;
-        BigDecimal term = BigDecimal.ONE;
-
-        for (int i = 1; i < 50; i++) {
-            term = term.multiply(x).divide(BigDecimal.valueOf(i), 30, RoundingMode.HALF_UP);
-            sum = sum.add(term);
-        }
-
-        return sum;
-    }
-
     
-    // BigDecimal におけるlnの定義
-    private BigDecimal ln(BigDecimal value) {
-        if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ArithmeticException("Error");
-        }
-
-        BigDecimal x = new BigDecimal(Math.log(value.doubleValue())); // 初期値
-        //BigDecimal ONE = BigDecimal.ONE;
-
-        for (int i = 0; i < 20; i++) {
-            BigDecimal eToX = exp(x);
-            x = x.subtract(eToX.subtract(value).divide(eToX, 30, RoundingMode.HALF_UP));
-        }
-
-        return x;
-    }
-    */
-
-
-    
-    BigDecimal ln(BigDecimal value) {
-    	double v = value.doubleValue();
-
-        // 定義域チェック：ln(x) は x > 0 のときのみ定義
-        if (v <= 0.0) {
-            return null; // applyUnaryOperation 側で Error 表示
-        }
-
-        double res = Math.log(v); // 自然対数 ln(x)
-
-        return new BigDecimal(BigDecimal.valueOf(res).toPlainString(), MC);
-
-    }
-    
-    BigDecimal log10(BigDecimal value) {
-    	double v = value.doubleValue();
-
-        if (v <= 0.0) {
-            return null;
-        }
-
-        return new BigDecimal(BigDecimal.valueOf(Math.log10(v)).toPlainString(), MC);
-
-    }
-    
-    BigDecimal _10_x(BigDecimal v) {
-    	double d = Math.pow(10, v.doubleValue());
-        return BigDecimal.valueOf(d);
-
-    }
 
     /* 三角関数用定義コーナー */
     
@@ -217,4 +147,12 @@ public class AngleMath {
     }
     
     /*三角関数ここまで*/
+    
+    protected BigDecimal sinRadFixed(BigDecimal rad) {
+        // 角度モードを無視してラジアンで計算
+    	double res = Math.sin(rad.doubleValue());
+        return new BigDecimal(res, MC);
+    }
+    
+    
 }

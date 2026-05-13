@@ -1,16 +1,17 @@
-package CalculatorGUI;
+package calculatorGUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
@@ -20,10 +21,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 
 public class CalculatorGUI extends JFrame implements ActionListener {
+	
+	//Initiation
     private JTextField displayField;
     private BigDecimal num1 = BigDecimal.ZERO;
     private BigDecimal num2 = BigDecimal.ZERO;
@@ -35,7 +37,13 @@ public class CalculatorGUI extends JFrame implements ActionListener {
     private static final int CalculatorCols = 5; //電卓ボタン, 1行当たりの数
 	public static final BigDecimal PI = new BigDecimal("3.1415926535897932384626");
 	private static final MathContext MC = new MathContext(20, RoundingMode.HALF_UP);
+	private PanelMode currentPanelMode = PanelMode.MODE00;
 	
+	private ArrayList<JButton> funcButtons = new ArrayList<>();
+	
+	//一部ボタンフォーマット整える用
+	private static final String BS = "⌫";
+	private static final String PI_LABEL = "𝝅";
 	private static final String pow10 = "<html>10<sup>x</sup></html>";
 	private static final String e_x = "<html>e<sup>x</sup></html>";
 	private static final String log10 = "<html>log<sub>10</sub></html>";
@@ -43,6 +51,24 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 	private static final String x_pow_3 = "<html>x<sup>3</sup></html>";
 	private static final String x_pow_y = "<html>x<sup>y</sup></html>";
 	private static final String x_rt_y = "<html><sup>y</sup>&radic;x</html>";
+	private static final String _2nd = "<html>2<sup>nd</sup></html>";
+	
+    // ボタンの配列ラベル
+    final String[] funcButtonLabels = {
+            "sin", "cos", "tan",
+            "mod", x_pow_2, x_pow_y,
+            e_x, "x!", "EXP",
+            "ln", "|x|", "√",
+            "1/x", PI_LABEL, _2nd,
+    };
+    
+    final String[] altfuncButtonLabels = {
+            "asin", "acos", "atan",
+            "mod", x_pow_3, x_pow_y,
+            pow10, "x!", "EXP",
+            log10, "|x|", x_rt_y,
+            "1/x", PI_LABEL, _2nd,
+    };
 	
 	//計算機入力管理用のフラグ
 	enum CalcState {
@@ -52,18 +78,22 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 	    AFTER_EQUAL,    // = の直後（結果表示中）
 	    AFTER_UNARY,	 // 関数適用後の状態
 	    OVERWRITE,      // 単項演算や C/CE 後の上書き開始
-	    ERROR			 // エラー。全ての入力を停止。
+	    ERROR			 // エラー。全ての入力を停止。10
 	}
 	private CalcState state = CalcState.INPUT_NUM1;
 	private AngleMode angleMode = AngleMode.RAD;
+	private BasicMath basicMath;
     private AngleMath angleMath;
+    private GammaMath gammaMath;
     
     public CalculatorGUI() {
         // ウィンドウの設定
-        setTitle("簡単関数電卓");
-        setSize(480, 300);
+        setTitle("JavaCalculator");
+        setSize(480, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(5, 5));
+        
+        
         
         // 表示フィールド
         displayField = new JTextField("0");
@@ -72,32 +102,49 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         displayField.setEditable(false);
         displayField.setBackground(new Color(30, 30, 30));
         displayField.setForeground(Color.WHITE);
-        displayField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(displayField, BorderLayout.NORTH);
+        displayField.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        // add(displayField, BorderLayout.NORTH);
+        
+        //モード切り替え用 ボタンパネル
+        JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        modePanel.setPreferredSize(new Dimension(0, 28)); // ← 高さだけ固定
+        modePanel.setBackground(new Color(20, 20, 20));
+        
+        JButton radButton = makeButton("RAD", 40, 60, 40);
+        radButton.setPreferredSize(new Dimension(60, 20));
+        radButton.setFont(new Font("Meiryo", Font.PLAIN, 15));
+
+        modePanel.add(radButton);
+
+        
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        topPanel.setBackground(new Color(20, 20, 20));
+
+        topPanel.add(displayField, BorderLayout.NORTH);
+        topPanel.add(modePanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
+        
+        
         
         //ボタン用パネル
         JPanel forButtonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         forButtonPanel.setBackground(new Color(20, 20, 20));
 
-        // ボタンの配列
-        String[] funcButtonLabels = {
-                "sin", "cos", "tan",
-                "mod", x_pow_2, x_pow_y,
-                e_x, pow10, "EXP",
-                "ln", log10, "√",
-                "1/x", "π", "RAD",
-        };
+
         
         String[] numButtonLabels = {
-        		"BS", "CE", "AC", "%", "÷",
+        		BS, "CE", "AC", "%", "÷",
                 "M+", "7", "8", "9", "×", 
                 "M-", "4", "5", "6", "-", 
                 "MR", "1", "2", "3", "+", 
                 "MC", "±", "0", ".", "=", 
         };
         
-    	
+        basicMath = new BasicMath(MC, () -> angleMode);
     	angleMath = new AngleMath(MC, () -> angleMode);
+    	gammaMath = new GammaMath(MC, () -> angleMode);
         System.out.println("angleMode = " + angleMode); 
         
         // 関数ボタンパネルを追加
@@ -105,30 +152,9 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         funcPanel.setBackground(new Color(20, 20, 20));
         
         for (String label : funcButtonLabels) {
-        	switch(label) {
-        	case "sin":
-        		funcPanel.add(makeButton(label, "asin", 60, 60, 60));
-        		break;
-        	case "cos":
-        		funcPanel.add(makeButton(label, "acos", 60, 60, 60));
-        		break;
-        	case "tan":
-        		funcPanel.add(makeButton(label, "atan", 60, 60, 60));
-        		break;
-        	case "√":
-        		funcPanel.add(makeButton(label, x_rt_y, 60, 60, 60));
-        		break;
-        	case x_pow_2:
-        		funcPanel.add(makeButton(label, x_pow_3, 60, 60, 60));
-        		break;
-    		case "RAD":
-    			funcPanel.add(makeButton(label, 40, 60, 40));
-    			break;
-    		default:
-    			funcPanel.add(makeButton(label, 30, 30, 30));
-    			break;
-        	}
-            //funcPanel.add(makeButton(label, 40, 40, 40));
+        	JButton thisBtn = makeButton(label, 60, 60, 60);
+            funcPanel.add(thisBtn);
+            funcButtons.add(thisBtn);
         }
         
         // 数字系ボタンパネルを追加
@@ -153,7 +179,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
     private JButton makeButton(String text, int r, int g, int b) {
         JButton btn = new JButton(text);
         
-        btn.setFont(new Font("Meiryo", Font.BOLD, 18));
+        btn.setFont(new Font("Noto Sans Math", Font.BOLD, 18));
         
         btn.setBackground(new Color(r, g, b));
         
@@ -164,6 +190,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         return btn;
     }
     
+    /*
     // 切り替え式ボタンフォーマット
     private JButton makeButton(String label, String altLabel, int r, int g, int b) {
         JButton btn = new JButton(label);
@@ -208,7 +235,9 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 
         return btn;
     }
+    */
     
+    /*
     //切り替えボタン用
     private void handleTrigFunction(String func) {
         switch (func) {
@@ -248,6 +277,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
     			break;
         }
     }
+    */
 
     
     // 計算の答えが.0の時はそれを消すメソッド
@@ -274,14 +304,12 @@ public class CalculatorGUI extends JFrame implements ActionListener {
                 // 小数点以下 20 桁、四捨五入
                 return a.divide(b, 20, RoundingMode.HALF_UP);
             case '^':
-            	BigDecimal ln = angleMath.ln(a);
-            	BigDecimal mul = ln.multiply(b, MC);
-            	return angleMath.exp(mul);
+            	return basicMath.powBD(a, b);
             case 'r':
             	BigDecimal inv = BigDecimal.ONE.divide(b, MC); // 1/y
-                BigDecimal ln_r = angleMath.ln(a);               // ln(x)
+                BigDecimal ln_r = basicMath.ln(a);               // ln(x)
                 BigDecimal mul_r = inv.multiply(ln_r, MC);         // (1/y) * ln(x)
-                return angleMath.exp(mul_r);                     // exp(...)
+                return basicMath.exp(mul_r);                     // exp(...)
             case '%':
                 BigDecimal rmd = a.remainder(b, MC);
 	                if (rmd.signum() < 0) {
@@ -679,25 +707,68 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 	        displayField.setText(s + "0");
 	    }
 	}
-	/*
-	private void xPowY() {
-		operator = '^';
-	    num1 = new BigDecimal(displayField.getText());
-	    setState(CalcState.AFTER_OPERATOR);
-	}
-	
-	private void xRtY() {
-	    operator = 'r';  // root の r
-	    num1 = new BigDecimal(displayField.getText());  // y を保存
-	    setState(CalcState.AFTER_OPERATOR);
-	}
-	*/
+
     
     //計算機の状態セット
     private void setState(CalcState s) {
         this.state = s;
         // デバッグ用ログ
         System.out.println("STATE -> " + s);
+    }
+    
+    //計算機の状態セット
+    private void switchAngleMode(JButton btn) {
+		
+		switch (angleMode) {
+	        case RAD:
+	            angleMode = AngleMode.DEG;
+	            btn.setText("DEG");
+	            btn.setBackground(new Color(80, 40, 40)); //DEGの色
+	            break;
+	        case DEG:
+	            angleMode = AngleMode.GRAD;
+	            btn.setText("GRAD");
+	            btn.setBackground(new Color(80, 80, 40)); //GRADの色
+	            break;
+	        case GRAD:
+	            angleMode = AngleMode.RAD;
+	            btn.setText("RAD");
+	            btn.setBackground(new Color(40, 80, 40)); //DEGの色
+	            break;
+			}
+	        // デバッグ用ログ
+	        System.out.println("AngleMode -> "+ btn.getText());
+    }
+    
+    private void switchPanelMode(JButton btn) {
+		
+		switch (currentPanelMode) {
+        case MODE00:
+        	currentPanelMode = PanelMode.MODE01;
+            break;
+        case MODE01:
+        	currentPanelMode = PanelMode.MODE00;
+            break;
+		}
+        // デバッグ用ログ
+		updateShiftLabels();
+        System.out.println("PanelMode -> "+ currentPanelMode);
+    }
+    
+    private void updateShiftLabels() {
+        for (int i = 0; i < funcButtons.size(); i++) {
+        	
+        	switch (currentPanelMode) {
+        		case MODE00:
+        			funcButtons.get(i).setText(funcButtonLabels[i]);
+        			funcButtons.get(i).setBackground(new Color(60, 60, 60));
+        			break;
+        		case MODE01:
+        			funcButtons.get(i).setText(altfuncButtonLabels[i]);
+        			funcButtons.get(i).setBackground(new Color(50, 50, 50));
+        			break;
+        	}
+        }
     }
 
     
@@ -739,7 +810,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         	if (state == CalcState.ERROR) return;
         	
         	switch(command) {
-        		case "BS":
+        		case BS:
         			backspace();
         			break;
         		case "=": //イコール処理
@@ -748,14 +819,14 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         		case ".": //小数点
 	        		puttingDot(); 
 	        		break;
-        		case "π": 
+        		case PI_LABEL: 
         			applyUnaryOperation(v -> PI);
         			break;
-        		/*
+ 
         		case "√": 
         			applyUnaryOperation(v -> sqrt(v));
         			break;
-        		*/
+
         		case "1/x": 
         			applyUnaryOperation(v -> BigDecimal.ONE.divide(v, 20, RoundingMode.HALF_UP));
     				break;
@@ -763,15 +834,15 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         			applyUnaryOperation(v -> v.negate());
     				break;
         		case "ln": 
-        			applyUnaryOperation(v -> angleMath.ln(v));
+        			applyUnaryOperation(v -> basicMath.ln(v));
     				break;
         		case log10: 
-        			applyUnaryOperation(v -> angleMath.log10(v));
+        			applyUnaryOperation(v -> basicMath.log10(v));
     				break;
         		case "mod":
         			operator_entry("%");
         			break;
-    			/*
+
         		case "sin":
         			applyUnaryOperation(v -> angleMath.sin(v));
         			break;
@@ -781,38 +852,35 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         		case "tan":
         			applyUnaryOperation(v -> angleMath.tan(v));
         			break;
-        		case "Asin":
+        		case "asin":
         			applyUnaryOperation(v -> angleMath.arcsin(v));
         			break;
-        		case "Acos":
+        		case "acos":
         			applyUnaryOperation(v -> angleMath.arccos(v));
         			break;
-        		case "Atan":
+        		case "atan":
         			applyUnaryOperation(v -> angleMath.arctan(v));
         			break;
-        		*/
-    			/*
+
         		case x_pow_2:
         			applyUnaryOperation(v -> v.multiply(v));
         			break;
         		case x_pow_3:
         			applyUnaryOperation(v -> v.multiply(v).multiply(v));
         			break;
-        		*/
+        		
         		case x_pow_y:
         			operator_entry("^");
         			break;
         		case pow10:
-        			applyUnaryOperation(v -> angleMath._10_x(v));
+        			applyUnaryOperation(v -> basicMath._10_x(v));
         			break;
         		case e_x:
-        			applyUnaryOperation(v -> angleMath.exp(v));
+        			applyUnaryOperation(v -> basicMath.exp(v));
         			break;
-        		/*
         		case x_rt_y:
-        			xRtY();
+        			operator_entry("√");
         			break;
-        		*/
         		case "EXP":
         			finalizeExpIfNeeded();
         			puttingExp();
@@ -820,29 +888,16 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         		case "%":
         		    inputPercent();
         		    break;
+        		case "|x|":
+        			applyUnaryOperation(v -> v.abs());
+        		    break;
+        		case "x!":
+        			applyUnaryOperation(v -> gammaMath.factorial(v));
+        		    break;
         		case "RAD":
         		case "DEG":
         		case "GRAD":
-        			JButton btn = (JButton)e.getSource();
-        			
-        			switch (angleMode) {
-        	        case RAD:
-        	            angleMode = AngleMode.DEG;
-        	            btn.setText("DEG");
-        	            btn.setBackground(new Color(80, 40, 40)); //DEGの色
-        	            break;
-        	        case DEG:
-        	            angleMode = AngleMode.GRAD;
-        	            btn.setText("GRAD");
-        	            btn.setBackground(new Color(80, 80, 40)); //GRADの色
-        	            break;
-        	        case GRAD:
-        	            angleMode = AngleMode.RAD;
-        	            btn.setText("RAD");
-        	            btn.setBackground(new Color(40, 80, 40)); //DEGの色
-        	            break;
-        			}
-        			
+        			switchAngleMode((JButton)e.getSource());
         		    break;
         		
         		case "MC":
@@ -850,6 +905,10 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         		case "M+":
         		case "M-":
         			memoryMode(command);
+        			
+        		case _2nd:
+        			switchPanelMode((JButton)e.getSource());
+        			
         		default :
         			break;
         	}

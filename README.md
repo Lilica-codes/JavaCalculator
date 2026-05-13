@@ -1,13 +1,34 @@
 # 簡単関数電卓
 
-Java と Swing を使用して作成した高精度の科学電卓アプリです。  
+このアプリは Java Swing の学習を目的として開発した高精度の科学電卓アプリです。  
 BigDecimal による正確な計算処理と、状態遷移を用いた安定した入力制御を特徴としています。  
 GUI は Swing をベースに、直感的で使いやすいレイアウトを実現しています。
 
 ---
 
+
+
 ## 📸 Screenshots
-（ここにアプリ画面の画像を貼る）
+
+### メイン画面
+![Main Screen](images/ScreenShot00.png)
+
+### 関数ボタンの例
+![Function Example](images/ScreenShot01.png)
+
+### パネル切り替えボタンの例
+![altLabel Calculation](images/ScreenShot02.png)
+
+
+---
+
+## 📚 学習目的
+
+- Java の基礎〜応用の習得
+- GUI アプリ開発
+- 高精度計算の実装
+- 数学関数の実装（Lanczos / Stirling）
+- GitHub を使ったプロジェクト管理
 
 ---
 
@@ -60,7 +81,7 @@ GUI は Swing をベースに、直感的で使いやすいレイアウトを実
 
 dist/Calculator_free.exe
 
-※ JRE 同梱版を使用しているため、Java のインストールは不要ですが、JREがあるならUse_this_if_you_have_jreフォルダ内のものを使用可能です。
+※ JRE 同梱版を使用しているため、Java のインストールは不要です。
 
 ---
 
@@ -81,8 +102,6 @@ JavaCalculator/
 │    ├─ Calculator.jar
 │    ├─ Calculator_free.exe
 │    └─ jre/               （Java 不要で動くための同梱 JRE）
-│    └─ Use_this_if_you_have_jre               
-│          └─ Calculator.exe
 ├─ .gitignore
 └─ README.md
 
@@ -108,18 +127,7 @@ JavaCalculator/
 
 必要に応じて GitHub Releases に JRE 同梱版を zip で公開できます。
 
----
 
-## 📸 Screenshots
-
-### メイン画面
-![Main Screen](images/screenshot1.png)
-
-### 関数ボタンの例
-![Function Example](images/screenshot2.png)
-
-### 長押しでも切り替えボタンの例
-![altLabel Calculation](images/screenshot3.png)
 
 ---
 
